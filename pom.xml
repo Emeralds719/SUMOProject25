@@ -1,0 +1,36 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.example</groupId>
+  <artifactId>sumo-demo</artifactId>
+  <version>1.0.0</version>
+  <packaging>jar</packaging>
+
+  <properties>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+  </properties>
+
+  <dependencies>
+    <!-- SUMO libtraci -->
+    <dependency>
+      <groupId>org.eclipse.sumo</groupId>
+      <artifactId>libtraci</artifactId>
+      <version>1.24.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/libtraci-1.24.0.jar</systemPath>
+    </dependency>
+
+    <!-- Optional: libsumo -->
+    <dependency>
+      <groupId>org.eclipse.sumo</groupId>
+      <artifactId>libsumo</artifactId>
+      <version>1.24.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/libsumo-1.24.0.jar</systemPath>
+    </dependency>
+  </dependencies>
+</project>
