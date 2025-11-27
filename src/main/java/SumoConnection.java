@@ -7,10 +7,11 @@ public class SumoConnection {
         // Add SUMO/bin to PATH of your system
         System.loadLibrary("libtracijni");
 
-        String cfg = "SumoConfig/demo.sumocfg"; 
+        String config = "SumoConfig/demo.sumocfg"; 
         
-        String[] cmd = { "sumo-gui", "-c", cfg, "--start" };
+        String[] cmd = { "sumo-gui", "-c", config, "--start" };
 
+        // For C++ conversion
         StringVector sv = new StringVector();
         for (String s : cmd) {
             sv.add(s);
@@ -18,14 +19,13 @@ public class SumoConnection {
 
         try {
             Simulation.start(sv);
-            System.out.println("Connected to SUMO with config: " + cfg);
             StringVector trafficlight_ids = TrafficLight.getIDList();
             System.out.println("Traffic lights in network (count = " + trafficlight_ids.size() + "):");
             
             for (int i = 0; i < trafficlight_ids.size(); i++) {
                 String id = trafficlight_ids.get(i);
                 String state = TrafficLight.getRedYellowGreenState(id);
-                System.out.println("  " + id + " -> " + state);
+                System.out.println("  " + id + ": " + state);
             }
 
             for (int step = 0; step < 30; step++) {
