@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
+
+
+<BorderPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="hellofx.Controller">
+        
+
+    <!-- Obere rechte Ecke -->
+    <top>
+          <VBox alignment="TOP_RIGHT" spacing="10">
+             <children>
+                 <!-- Grüner Button -->
+                <Button text="Start Simulation" style="-fx-background-color: green; -fx-text-fill: white;"/>
+                <!-- Roter Button -->
+                <Button text="Stop Simulation" style="-fx-background-color: red; -fx-text-fill: white;"/>
+                <!-- Weißer Button -->
+                <Button text="Reset Button" style="-fx-background-color: white; -fx-text-fill: black;"/>
+
+
+                <!-- Textblock "Simulationszeit" Anfang -->
+              <VBox spacing="5"
+                  alignment="TOP_RIGHT"
+                  style="-fx-background-color: #e0e0e0; -fx-padding: 10; -fx-background-radius: 5;"
+                  maxWidth="150">
+                  <children>
+                <Label text="Simulationszeit" style="-fx-font-size: 12px;"/>
+                <Label fx:id="timeLabel" text="00:00:00"
+                        style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                   </children>
+               </VBox>
+                <!-- Textblock "Timer" Ende-->
+
+                <!-- Weißer Button -->
+                <Button text="Erweiterte Einstellungen" style="-fx-background-color: white; -fx-text-fill: black;"/>
+             </children>
+
+             <padding> 
+                <Insets top="55" right="10" bottom="10" left="10"/> 
+             </padding>
+        </VBox>
+</top>
+
+
+    <!-- Inhalt Mitte -->
+    <center>
+        <Label fx:id="label" text="Sumo"/>
+    </center>
+
+</BorderPane>   

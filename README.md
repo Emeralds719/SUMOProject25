@@ -1,11 +1,18 @@
-Download SUMO: https://sumo.dlr.de/docs/Downloads.php
+## Getting Started
 
-Add SUMO /bin folder to PATH
+Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
 
-Download Java version 21 and Maven version 3.8+
+## Folder Structure
 
-Clone the git repository into a folder named SumoProject: C:\SumoProject
+The workspace contains two folders by default, where:
 
-Open a terminal at project root: C:\SumoProject
+- `src`: the folder to maintain sources
+- `lib`: the folder to maintain dependencies
 
-Execute: mvn exec:java "-Dexec.mainClass=SumoConnection"
+Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+
+> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+
+## Dependency Management
+
+The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
