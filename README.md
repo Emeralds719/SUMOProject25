@@ -8,4 +8,4 @@ Clone the git repository into a folder named SumoProject: C:\SumoProject
 
 Open a terminal at project root: C:\SumoProject
 
-Execute: mvn exec:java "-Dexec.mainClass=SumoConnection"
+Execute: mvn javafx:run
