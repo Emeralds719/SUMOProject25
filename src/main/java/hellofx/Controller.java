@@ -9,8 +9,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import model.TrafficLightState;
 import model.VehicleState;
+import service.NetworkService; 
+import service.TraaSNetworkService; 
 import service.TraaSTrafficLightService;
 import service.TraaSVehicleService;
 import service.TrafficLightService;
@@ -20,23 +21,12 @@ import java.util.List;
 
 public class Controller {
 
-    @FXML
-    private VBox simulationContainer;
-
-    @FXML
-    private Label maxSpeedLabel;
-
-    @FXML
-    private Label avgSpeedLabel;
-
-    @FXML
-    private Label connectionStatusLabel;
-
-    @FXML
-    private VBox advancedSettingsBox;
-
-    @FXML
-    private Button settingsButton;
+    @FXML private VBox simulationContainer;
+    @FXML private Label maxSpeedLabel;
+    @FXML private Label avgSpeedLabel;
+    @FXML private Label connectionStatusLabel;
+    @FXML private VBox advancedSettingsBox;
+    @FXML private Button settingsButton;
 
     private Canvas canvas;
     private GraphicsContext gc;
@@ -44,47 +34,41 @@ public class Controller {
     private TraaSConnection connection;
     private VehicleService vehicleService;
     private TrafficLightService trafficLightService;
+    private NetworkService networkService; 
 
     private AnimationTimer timer;
     private boolean running = false;
 
-    private static final double SCALE = 3.0; // SUMO-Koordinaten → Canvas-Pixel
+    private static final double SCALE = 3.0; 
 
     @FXML
     public void initialize() {
-        // Canvas für deine Map
         canvas = new Canvas(800, 600);
         gc = canvas.getGraphicsContext2D();
         simulationContainer.getChildren().add(canvas);
 
-        // SUMO-Verbindung
         String dllPath = "C:/Program Files (x86)/Eclipse/Sumo/bin/libtracijni.dll";
         String cfgPath = "C:/SumoProject/SumoConfig/demo.sumocfg";
         connection = new TraaSConnection(dllPath, cfgPath);
 
-        // Services
         vehicleService = new TraaSVehicleService(connection);
         trafficLightService = new TraaSTrafficLightService(connection);
+        networkService = new TraaSNetworkService(connection);
 
         setDisconnectedStatus();
         clearMap();
 
-        // Timer für Simulation + Zeichnen
         timer = new AnimationTimer() {
             private long lastUpdate = 0;
-
             @Override
             public void handle(long now) {
-                if (now - lastUpdate < 50_000_000) { // ~20 FPS
-                    return;
-                }
+                if (now - lastUpdate < 50_000_000) return; 
                 lastUpdate = now;
                 stepAndRender();
             }
         };
     }
 
-    // Start-Button
     @FXML
     private void onStartSimulation() {
         if (running) return;
@@ -95,12 +79,11 @@ public class Controller {
             setConnectedStatus();
         } catch (Exception e) {
             e.printStackTrace();
-            connectionStatusLabel.setText("Status: Fehler bei Verbindung");
+            connectionStatusLabel.setText("Status: Error");
             connectionStatusLabel.setStyle("-fx-text-fill: red;");
         }
     }
 
-    // Stop-Button
     @FXML
     private void onStopSimulation() {
         if (!running) return;
@@ -110,7 +93,6 @@ public class Controller {
         setDisconnectedStatus();
     }
 
-    // Reset-Button
     @FXML
     private void onResetSimulation() {
         onStopSimulation();
@@ -124,16 +106,13 @@ public class Controller {
         advancedSettingsBox.setManaged(!visible);
     }
 
-    // Ein Tick: SUMO weiter + alles neu zeichnen
     private void stepAndRender() {
         try {
             connection.step();
-
             clearMap();
             drawNetwork();
             drawTrafficLights();
             drawVehicles();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -144,18 +123,28 @@ public class Controller {
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
-    // einfache, statische Straßenzeichnung (Kreuz)
     private void drawNetwork() {
-        gc.setStroke(Color.DARKGRAY);
-        gc.setLineWidth(20);
+        gc.setStroke(Color.GRAY);
+        gc.setLineWidth(10); 
 
-        double w = canvas.getWidth();
-        double h = canvas.getHeight();
+        List<String> edges = networkService.getEdgeIds();
+        for (String edgeId : edges) {
+            if (edgeId.startsWith(":")) continue;
 
-        // horizontale Straße
-        gc.strokeLine(0, h / 2, w, h / 2);
-        // vertikale Straße
-        gc.strokeLine(w / 2, 0, w / 2, h);
+            List<double[]> shape = networkService.getEdgeShape(edgeId);
+            if (shape.isEmpty()) continue;
+
+            gc.beginPath();
+            for (int i = 0; i < shape.size(); i++) {
+                double[] p = shape.get(i);
+                double x = p[0] * SCALE;
+                double y = canvas.getHeight() - (p[1] * SCALE); // Flip Y
+                
+                if (i == 0) gc.moveTo(x, y);
+                else gc.lineTo(x, y);
+            }
+            gc.stroke();
+        }
     }
 
     private void drawVehicles() {
@@ -167,15 +156,18 @@ public class Controller {
 
         for (String id : ids) {
             double[] pos = vehicleService.getVehiclePos(id);
-            VehicleState s = new VehicleState(id, pos[0], pos[1]);
+            VehicleState s = new VehicleState(id);
+    
+            s.setX(pos[0]);
+            s.setY(pos[1]);
+            s.setSpeed(vehicleService.getVehicleSpeed(id));
 
-            // SUMO-Koordinaten → Canvas
             double x = s.getX() * SCALE;
-            double y = canvas.getHeight() - s.getY() * SCALE; // Y-Achse umdrehen
+            double y = canvas.getHeight() - (s.getY() * SCALE);
 
-            gc.fillRect(x - 4, y - 4, 8, 8);
+            gc.fillRect(x - 5, y - 5, 10, 10); 
 
-            double v = s.getSpeed() * 3.6; // m/s → km/h (falls nötig)
+            double v = s.getSpeed() * 3.6;
             sumSpeed += v;
             if (v > maxSpeed) maxSpeed = v;
         }
@@ -184,31 +176,21 @@ public class Controller {
             double avg = sumSpeed / ids.size();
             maxSpeedLabel.setText(String.format("Max: %.1f km/h", maxSpeed));
             avgSpeedLabel.setText(String.format("Average: %.1f km/h", avg));
-        } else {
-            maxSpeedLabel.setText("Max: 0 km/h");
-            avgSpeedLabel.setText("Average: 0 km/h");
         }
     }
 
     private void drawTrafficLights() {
+    
         List<String> tlIds = trafficLightService.getTrafficLightIds();
         if (tlIds.isEmpty()) return;
 
         String id = tlIds.get(0); 
         String state = trafficLightService.getTrafficLightState(id);
+        
+        Color c = (state.toLowerCase().startsWith("r")) ? Color.RED : Color.LIMEGREEN;
 
-        char first = state.charAt(0);
-        Color c;
-        if (first == 'G' || first == 'g') {
-            c = Color.LIMEGREEN;
-        } else if (first == 'r' || first == 'R') {
-            c = Color.RED;
-        } else {
-            c = Color.GOLD;
-        }
-
-        double x = canvas.getWidth() / 2;
-        double y = canvas.getHeight() / 2;
+        double x = 100 * SCALE; 
+        double y = canvas.getHeight() - (100 * SCALE);
 
         gc.setFill(c);
         gc.fillOval(x - 10, y - 10, 20, 20);

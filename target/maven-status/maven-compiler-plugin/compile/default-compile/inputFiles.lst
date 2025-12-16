@@ -1,5 +1,6 @@
 C:\SumoProject\src\main\java\backend\Connection.java
-C:\SumoProject\src\main\java\backend\LibtraciConnection.java
+C:\SumoProject\src\main\java\backend\TraaSConnection.java
+C:\SumoProject\src\main\java\core\SimulationController.java
 C:\SumoProject\src\main\java\hellofx\Controller.java
 C:\SumoProject\src\main\java\hellofx\MainApp.java
 C:\SumoProject\src\main\java\model\Edges.java
@@ -7,9 +8,9 @@ C:\SumoProject\src\main\java\model\Entity.java
 C:\SumoProject\src\main\java\model\Nodes.java
 C:\SumoProject\src\main\java\model\TrafficLightState.java
 C:\SumoProject\src\main\java\model\VehicleState.java
-C:\SumoProject\src\main\java\service\LibtraciNetworkService.java
-C:\SumoProject\src\main\java\service\LibtraciTrafficLightService.java
-C:\SumoProject\src\main\java\service\LibtraciVehicleService.java
 C:\SumoProject\src\main\java\service\NetworkService.java
+C:\SumoProject\src\main\java\service\TraaSNetworkService.java
+C:\SumoProject\src\main\java\service\TraaSTrafficLightService.java
+C:\SumoProject\src\main\java\service\TraaSVehicleService.java
 C:\SumoProject\src\main\java\service\TrafficLightService.java
 C:\SumoProject\src\main\java\service\VehicleService.java

@@ -9,11 +9,11 @@ import org.eclipse.sumo.libtraci.Lane;
 import org.eclipse.sumo.libtraci.StringVector;
 import org.eclipse.sumo.libtraci.TraCIPosition;
 import org.eclipse.sumo.libtraci.TraCIPositionVector;
-import org.eclipse.sumo.libtraci.TraCPositionVector;
+import org.eclipse.sumo.libtraci.TraCPositionVector; 
 
 import backend.TraaSConnection;
 
-public class TraaSNetworkService implements NetworkService{
+public class TraaSNetworkService implements NetworkService {
     
     private final TraaSConnection connection;
 
@@ -25,7 +25,6 @@ public class TraaSNetworkService implements NetworkService{
     public List<String> getEdgeIds() {
         connectionStatus();
         StringVector ids = Edge.getIDList();
-
         List<String> idList = new ArrayList<>();
         for (int i = 0; i < ids.size(); i++) {
             idList.add(ids.get(i));
@@ -37,7 +36,6 @@ public class TraaSNetworkService implements NetworkService{
     public List<String> getAllNodes() {
         connectionStatus();
         StringVector ids = Junction.getIDList();
-
         List<String> idList = new ArrayList<>();
         for (int i = 0; i < ids.size(); i++) {
             idList.add(ids.get(i));
@@ -49,13 +47,8 @@ public class TraaSNetworkService implements NetworkService{
     public double getEdgeLength(String id) {
         connectionStatus();
         int laneCount = Edge.getLaneNumber(id);
-        
-        if(laneCount <= 0) {
-            throw new IllegalArgumentException("Edge " + id + " has no lanes.");
-        }
-
-        String laneId = id + "_0";
-        return Lane.getLength(laneId);
+        if(laneCount <= 0) return 0.0;
+        return Lane.getLength(id + "_0");
     }
 
     @Override
@@ -68,21 +61,22 @@ public class TraaSNetworkService implements NetworkService{
     @Override
     public List<double[]> getEdgeShape(String id) {
         connectionStatus();
-        
-        // 1. Call SUMO to get the edge shape
-        TraCPositionVector shapeVector = Edge.getShape(id);
-        
         List<double[]> points = new ArrayList<>();
 
-        // 2. Iterate over the vector
-        // Note: shapeVector.size() usually returns long in SWIG-generated code
-        long count = shapeVector.size(); 
-        for (int i = 0; i < count; i++) {
-            TraCIPosition pos = shapeVector.get(i);
-            points.add(new double[] { pos.getX(), pos.getY() });
+        try {
+            String laneId = id + "_0";
+            
+            TraCIPositionVector wrapper = Lane.getShape(laneId);
+            
+            TraCPositionVector vector = wrapper.getValue();
+            
+            for (int i = 0; i < vector.size(); i++) {
+                TraCIPosition pos = vector.get(i);
+                points.add(new double[]{pos.getX(), pos.getY()});
+            }
+        } catch (Exception e) {
+            System.err.println("Could not get shape for edge " + id);
         }
-        
         return points;
     }
 }
-
