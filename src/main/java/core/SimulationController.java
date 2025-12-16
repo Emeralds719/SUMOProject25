@@ -1,6 +1,6 @@
 package core;
 
-import backend.LibtraciConnection;
+import backend.TraaSConnection;
 import model.VehicleState;
 import service.TraaSVehicleService;
 
@@ -11,12 +11,12 @@ import java.util.Map;
 
 public class SimulationController {
 
-    private final LibtraciConnection connection;
+    private final TraaSConnection connection;
     private final TraaSVehicleService vehicleService;
 
     private final Map<String, VehicleState> vehicles = new HashMap<>();
 
-    public SimulationController(LibtraciConnection connection, TraaSVehicleService vehicleService) {
+    public SimulationController(TraaSConnection connection, TraaSVehicleService vehicleService) {
         this.connection = connection;
         this.vehicleService = vehicleService;
     }
@@ -36,7 +36,7 @@ public class SimulationController {
     }
     
     public void tick() throws Exception {
-        connection.stepSimulation();
+        connection.step();
         initVehicles(); 
     }
 

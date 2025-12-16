@@ -1,6 +1,6 @@
 package hellofx;
 
-import backend.LibtraciConnection;
+import backend.TraaSConnection;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -41,7 +41,7 @@ public class Controller {
     private Canvas canvas;
     private GraphicsContext gc;
 
-    private LibtraciConnection connection;
+    private TraaSConnection connection;
     private VehicleService vehicleService;
     private TrafficLightService trafficLightService;
 
@@ -60,11 +60,11 @@ public class Controller {
         // SUMO-Verbindung
         String dllPath = "C:/Program Files (x86)/Eclipse/Sumo/bin/libtracijni.dll";
         String cfgPath = "C:/SumoProject/SumoConfig/demo.sumocfg";
-        connection = new LibtraciConnection(dllPath, cfgPath);
+        connection = new TraaSConnection(dllPath, cfgPath);
 
         // Services
         vehicleService = new TraaSVehicleService(connection);
-        trafficLightService = new TraaSTrafficLightService();
+        trafficLightService = new TraaSTrafficLightService(connection);
 
         setDisconnectedStatus();
         clearMap();
@@ -127,7 +127,7 @@ public class Controller {
     // Ein Tick: SUMO weiter + alles neu zeichnen
     private void stepAndRender() {
         try {
-            connection.stepSimulation();
+            connection.step();
 
             clearMap();
             drawNetwork();
@@ -166,7 +166,8 @@ public class Controller {
         gc.setFill(Color.YELLOW);
 
         for (String id : ids) {
-            VehicleState s = vehicleService.getVehicleState(id);
+            double[] pos = vehicleService.getVehiclePos(id);
+            VehicleState s = new VehicleState(id, pos[0], pos[1]);
 
             // SUMO-Koordinaten → Canvas
             double x = s.getX() * SCALE;
@@ -190,13 +191,11 @@ public class Controller {
     }
 
     private void drawTrafficLights() {
-        // Beispiel für eine Ampel mit ID "C" in der Mitte der Kreuzung
         List<String> tlIds = trafficLightService.getTrafficLightIds();
         if (tlIds.isEmpty()) return;
 
-        String id = tlIds.get(0); // nur erste Ampel
-        TrafficLightState tls = trafficLightService.getTrafficLightState(id);
-        String state = tls.getState();
+        String id = tlIds.get(0); 
+        String state = trafficLightService.getTrafficLightState(id);
 
         char first = state.charAt(0);
         Color c;
@@ -205,7 +204,7 @@ public class Controller {
         } else if (first == 'r' || first == 'R') {
             c = Color.RED;
         } else {
-            c = Color.GOLD; // gelb
+            c = Color.GOLD;
         }
 
         double x = canvas.getWidth() / 2;

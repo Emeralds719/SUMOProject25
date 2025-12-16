@@ -7,7 +7,7 @@ import org.eclipse.sumo.libtraci.StringVector;
 import org.eclipse.sumo.libtraci.TraCIPosition;
 import org.eclipse.sumo.libtraci.Vehicle;
 
-import service.TraaSConnection;
+import backend.TraaSConnection;
 
 public class TraaSVehicleService implements VehicleService{
     private final TraaSConnection connection;

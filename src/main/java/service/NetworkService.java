@@ -7,4 +7,5 @@ public interface NetworkService {
     public List<String> getAllNodes();
     public double getEdgeLength(String id);
     public void connectionStatus();
+    List<double[]> getEdgeShape(String id);
 }

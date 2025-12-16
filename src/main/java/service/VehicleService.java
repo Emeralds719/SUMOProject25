@@ -1,5 +1,4 @@
 package service;
-import model.VehicleState;
 import java.util.List;
 
 public interface VehicleService {

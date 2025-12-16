@@ -6,7 +6,7 @@ import java.util.List;
 import org.eclipse.sumo.libtraci.StringVector;
 import org.eclipse.sumo.libtraci.TrafficLight;
 
-import service.TraaSConnection;
+import backend.TraaSConnection;
 
 public class TraaSTrafficLightService implements TrafficLightService{
     

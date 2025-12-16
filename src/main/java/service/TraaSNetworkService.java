@@ -7,6 +7,11 @@ import org.eclipse.sumo.libtraci.Edge;
 import org.eclipse.sumo.libtraci.Junction;
 import org.eclipse.sumo.libtraci.Lane;
 import org.eclipse.sumo.libtraci.StringVector;
+import org.eclipse.sumo.libtraci.TraCIPosition;
+import org.eclipse.sumo.libtraci.TraCIPositionVector;
+import org.eclipse.sumo.libtraci.TraCPositionVector;
+
+import backend.TraaSConnection;
 
 public class TraaSNetworkService implements NetworkService{
     
@@ -58,6 +63,26 @@ public class TraaSNetworkService implements NetworkService{
         if (!connection.isConnected()) {
             throw new IllegalStateException("Not connected to SUMO simulation.");
         }
+    }
+
+    @Override
+    public List<double[]> getEdgeShape(String id) {
+        connectionStatus();
+        
+        // 1. Call SUMO to get the edge shape
+        TraCPositionVector shapeVector = Edge.getShape(id);
+        
+        List<double[]> points = new ArrayList<>();
+
+        // 2. Iterate over the vector
+        // Note: shapeVector.size() usually returns long in SWIG-generated code
+        long count = shapeVector.size(); 
+        for (int i = 0; i < count; i++) {
+            TraCIPosition pos = shapeVector.get(i);
+            points.add(new double[] { pos.getX(), pos.getY() });
+        }
+        
+        return points;
     }
 }
 
