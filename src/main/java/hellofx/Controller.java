@@ -40,6 +40,13 @@ public class Controller {
     private boolean running = false;
 
     private static final double SCALE = 3.0; 
+    
+    private double viewX = 0;
+    private double viewY = 0;
+    private double viewZoom = 1.0;
+    private double mouseX = 0;
+    private double mouseY = 0;
+    
 
     @FXML
     public void initialize() {
@@ -67,6 +74,34 @@ public class Controller {
                 stepAndRender();
             }
         };
+
+        // zooming
+        canvas.setOnScroll(event -> { 
+            double zoomFactor = 1.05;
+            if(event.getDeltaY() < 0){
+                zoomFactor = 1 / zoomFactor; // zoom out
+            }
+            viewZoom *= zoomFactor;
+            renderFrame(); //redraw the map
+        });
+
+        canvas.setOnMousePressed(event ->{
+            mouseX = event.getX();
+            mouseY = event.getY();
+        });
+
+        canvas.setOnMouseDragged(event ->{
+            double dx = event.getX() - mouseX;
+            double dy = event.getY() - mouseY;
+
+            viewX += dx;
+            viewY += dy;
+
+            mouseX = event.getX();
+            mouseY = event.getY();
+
+            renderFrame();
+        });
     }
 
     @FXML
@@ -106,13 +141,30 @@ public class Controller {
         advancedSettingsBox.setManaged(!visible);
     }
 
+    private void renderFrame(){
+        try{
+            gc.setTransform(1, 0 , 0, 1, 0, 0);
+            clearMap();
+
+            gc.translate(viewX, viewY);
+            gc.scale(viewZoom, viewZoom);
+
+            if(connection != null && connection.isConnected()){
+                drawNetwork();
+                drawTrafficLights();
+                drawVehicles();
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    
+
     private void stepAndRender() {
         try {
             connection.step();
-            clearMap();
-            drawNetwork();
-            drawTrafficLights();
-            drawVehicles();
+            renderFrame();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -184,16 +236,31 @@ public class Controller {
         List<String> tlIds = trafficLightService.getTrafficLightIds();
         if (tlIds.isEmpty()) return;
 
-        String id = tlIds.get(0); 
-        String state = trafficLightService.getTrafficLightState(id);
-        
-        Color c = (state.toLowerCase().startsWith("r")) ? Color.RED : Color.LIMEGREEN;
+        for(String id : tlIds){
+            String state = trafficLightService.getTrafficLightState(id);
 
-        double x = 100 * SCALE; 
-        double y = canvas.getHeight() - (100 * SCALE);
+            double[] pos = networkService.getJunctionPosition(id);
+            double rawX = pos[0];
+            double rawY = pos[1];
 
-        gc.setFill(c);
-        gc.fillOval(x - 10, y - 10, 20, 20);
+            double x = rawX * SCALE;
+            double y = canvas.getHeight() - (rawY * SCALE);
+
+            Color c;
+            if (state.toLowerCase().contains("r")){
+                c = Color.RED;
+            } else if (state.toLowerCase().contains("g")){
+                c = Color.LIMEGREEN;
+            } else {
+                c = Color.YELLOW;
+            }
+
+            gc.setFill(c);
+            gc.fillOval(x - 5, y - 5, 10, 10);
+
+            gc.setFill(Color.BLACK);
+            gc.fillText(id, x + 8, y);
+        }
     }
 
     private void setConnectedStatus() {

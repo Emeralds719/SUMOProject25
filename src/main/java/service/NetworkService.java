@@ -8,4 +8,5 @@ public interface NetworkService {
     public double getEdgeLength(String id);
     public void connectionStatus();
     List<double[]> getEdgeShape(String id);
+    double[] getJunctionPosition(String id);
 }

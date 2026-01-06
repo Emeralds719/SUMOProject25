@@ -79,4 +79,19 @@ public class TraaSNetworkService implements NetworkService {
         }
         return points;
     }
+
+    @Override
+    public double[] getJunctionPosition(String id) {
+        if (!connection.isConnected()){
+            return new double[]{0, 0};
+        }
+        
+        try{
+            var pos = Junction.getPosition(id);
+            return new double[]{pos.getX(), pos.getY()};
+        } catch (Exception e){
+            return new double[]{0, 0};
+        }
+    }
+
 }

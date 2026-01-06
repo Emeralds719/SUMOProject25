@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <edges>
-    <edge id="N2C" from="N" to="C"/>
-    <edge id="C2N" from="C" to="N"/>
+    <edge id="w_to_tl1" from="W"   to="TL1" />
+    <edge id="tl1_to_w" from="TL1" to="W" />
 
-    <edge id="S2C" from="S" to="C"/>
-    <edge id="C2S" from="C" to="S"/>
+    <edge id="tl1_to_tl2" from="TL1" to="TL2" />
+    <edge id="tl2_to_tl1" from="TL2" to="TL1" />
 
-    <edge id="E2C" from="E" to="C"/>
-    <edge id="C2E" from="C" to="E"/>
-
-    <edge id="W2C" from="W" to="C"/>
-    <edge id="C2W" from="C" to="W"/>
+    <edge id="tl2_to_e" from="TL2" to="E" />
+    <edge id="e_to_tl2" from="E"   to="TL2" />
 </edges>
