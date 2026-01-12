@@ -1,22 +1,26 @@
 package core;
 
 import backend.TraaSConnection;
+import model.Vehicle;
 import model.VehicleState;
 import service.TraaSVehicleService;
+import service.VehicleService;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public class SimulationController {
 
     private final TraaSConnection connection;
-    private final TraaSVehicleService vehicleService;
+    private final VehicleService vehicleService;
 
-    private final Map<String, VehicleState> vehicles = new HashMap<>();
+    private final Map<String, Vehicle> vehicles = new HashMap<>();
 
-    public SimulationController(TraaSConnection connection, TraaSVehicleService vehicleService) {
+    public SimulationController(TraaSConnection connection, VehicleService vehicleService) {
         this.connection = connection;
         this.vehicleService = vehicleService;
     }
@@ -24,6 +28,8 @@ public class SimulationController {
     public void start() throws Exception {
         connection.connect();
         initVehicles();
+        refreshVehicles();
+
     }
 
     public void stop() {
@@ -37,27 +43,37 @@ public class SimulationController {
     
     public void tick() throws Exception {
         connection.step();
-        initVehicles(); 
+        initVehicles();
+        refreshVehicles(); 
     }
 
     private void initVehicles() {
-        List<String> ids = vehicleService.getVehicleIds();
-        vehicles.clear();
+        List<String> vehicleIds = vehicleService.getVehicleIds();
+        Set<String> current = new HashSet<>(vehicleIds);
 
-        for (String id : ids) {
-            VehicleState v = new VehicleState(id);
-            double speed = vehicleService.getVehicleSpeed(id);
-            double[] pos = vehicleService.getVehiclePos(id);
+        for(String id : vehicleIds) {
+            vehicles.putIfAbsent(id, new Vehicle(id, vehicleService));
+        }
 
-            v.setSpeed(speed);
-            v.setX(pos[0]);
-            v.setY(pos[1]);
+        vehicles.keySet().removeIf(id -> !current.contains(id));
+    }
 
-            vehicles.put(id, v);
+    public void refreshVehicles() throws Exception {
+        for(Vehicle vehicle : vehicles.values()) {
+            vehicle.updatePosition();
         }
     }
 
-    public Map<String, VehicleState> getVehicles() {
-        return vehicles;
+    public Map<String, VehicleState> getVehicleStates() {
+        Map<String, VehicleState> states = new HashMap<>();
+        for(Vehicle vehicle : vehicles.values()) {
+            states.put(vehicle.getId(), vehicle.toVehicleState());
+        }
+        return states;
     }
+
+    public Vehicle getVehicleById(String id) {
+        return vehicles.get(id);
+    }
+
 }
