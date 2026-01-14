@@ -5,7 +5,9 @@ import model.TrafficLight;
 import model.TrafficLightState;
 import model.Vehicle;
 import model.VehicleState;
+import model.Network;
 import service.VehicleService;
+import service.NetworkService;
 import service.TrafficLightService;
 
 import java.util.HashMap;
@@ -20,20 +22,24 @@ public class SimulationController {
     private final TraaSConnection connection;
     private final VehicleService vehicleService;
     private final TrafficLightService trafficLightService;
+    private final Network network;
 
     private final Map<String, Vehicle> vehicles = new HashMap<>();
     private final Map<String, TrafficLight> trafficLights = new HashMap<>();
 
     public SimulationController(TraaSConnection connection, 
                                 VehicleService vehicleService,
-                                TrafficLightService trafficLightService) {
+                                TrafficLightService trafficLightService,
+                                NetworkService networkService) {
         this.connection = connection;
         this.vehicleService = vehicleService;
         this.trafficLightService = trafficLightService;
+        this.network = new Network(networkService);
     }
 
     public void start() throws Exception {
         connection.connect();
+        network.loadFromSumo();
         initVehicles();
         refreshVehicles();
         initTrafficLights();
@@ -110,6 +116,10 @@ public class SimulationController {
 
     public Vehicle getVehicleById(String id) {
         return vehicles.get(id);
+    }
+
+    public Network getNetwork() {
+        return network;
     }
 
 }

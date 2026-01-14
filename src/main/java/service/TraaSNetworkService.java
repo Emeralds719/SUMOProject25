@@ -23,7 +23,6 @@ public class TraaSNetworkService implements NetworkService {
 
     @Override
     public List<String> getEdgeIds() {
-        connectionStatus();
         StringVector ids = Edge.getIDList();
         List<String> idList = new ArrayList<>();
         for (int i = 0; i < ids.size(); i++) {
@@ -34,7 +33,6 @@ public class TraaSNetworkService implements NetworkService {
 
     @Override
     public List<String> getAllNodes() {
-        connectionStatus();
         StringVector ids = Junction.getIDList();
         List<String> idList = new ArrayList<>();
         for (int i = 0; i < ids.size(); i++) {
@@ -45,22 +43,14 @@ public class TraaSNetworkService implements NetworkService {
 
     @Override
     public double getEdgeLength(String id) {
-        connectionStatus();
         int laneCount = Edge.getLaneNumber(id);
         if(laneCount <= 0) return 0.0;
         return Lane.getLength(id + "_0");
     }
 
-    @Override
-    public void connectionStatus() {
-        if (!connection.isConnected()) {
-            throw new IllegalStateException("Not connected to SUMO simulation.");
-        }
-    }
 
     @Override
     public List<double[]> getEdgeShape(String id) {
-        connectionStatus();
         List<double[]> points = new ArrayList<>();
 
         try {
@@ -92,6 +82,18 @@ public class TraaSNetworkService implements NetworkService {
         } catch (Exception e){
             return new double[]{0, 0};
         }
+    }
+
+    @Override
+    public String getEdgeFromNode(String id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getEdgeFromNode'");
+    }
+
+    @Override
+    public String getEdgeToNode(String id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getEdgeToNode'");
     }
 
 }

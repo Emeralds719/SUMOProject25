@@ -6,7 +6,8 @@ public interface NetworkService {
     public List<String> getEdgeIds();
     public List<String> getAllNodes();
     public double getEdgeLength(String id);
-    public void connectionStatus();
+    String getEdgeFromNode(String id);
+    String getEdgeToNode(String id);
     List<double[]> getEdgeShape(String id);
     double[] getJunctionPosition(String id);
 }
